@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: ensemble-room-reservation
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ensemble
+    username: ensemble
+    password: ensemble
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+server:
+  port: 8080
