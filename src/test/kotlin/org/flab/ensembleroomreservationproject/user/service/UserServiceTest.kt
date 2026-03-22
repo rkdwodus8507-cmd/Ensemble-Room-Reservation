@@ -1,6 +1,7 @@
 package org.flab.ensembleroomreservationproject.user.service
 
 import org.flab.ensembleroomreservationproject.common.exception.NotFoundException
+import org.flab.ensembleroomreservationproject.support.DatabaseCleanup
 import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
@@ -19,9 +20,10 @@ class UserServiceTest {
 
     @Autowired lateinit var userService: UserService
     @Autowired lateinit var userRepository: UserRepository
+    @Autowired lateinit var databaseCleanup: DatabaseCleanup
 
     @BeforeEach
-    fun setUp() { userRepository.deleteAll() }
+    fun setUp() { databaseCleanup.execute() }
 
     @Test
     fun `유저 조회 - 존재하는 유저`() {

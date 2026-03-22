@@ -3,6 +3,7 @@ package org.flab.ensembleroomreservationproject.room.service
 import org.flab.ensembleroomreservationproject.room.dto.RoomCreateRequest
 import org.flab.ensembleroomreservationproject.room.entity.Equipment
 import org.flab.ensembleroomreservationproject.room.repository.RoomRepository
+import org.flab.ensembleroomreservationproject.support.DatabaseCleanup
 import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
@@ -24,14 +25,13 @@ class RoomServiceTest {
     @Autowired lateinit var roomRepository: RoomRepository
     @Autowired lateinit var vendorRepository: VendorRepository
     @Autowired lateinit var userRepository: UserRepository
+    @Autowired lateinit var databaseCleanup: DatabaseCleanup
 
     lateinit var vendor: Vendor
 
     @BeforeEach
     fun setUp() {
-        roomRepository.deleteAll()
-        vendorRepository.deleteAll()
-        userRepository.deleteAll()
+        databaseCleanup.execute()
         val owner = userRepository.save(User(tossUserId = "owner_1", nickname = "사장님"))
         vendor = vendorRepository.save(
             Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111")

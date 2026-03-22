@@ -1,6 +1,7 @@
 package org.flab.ensembleroomreservationproject.user.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.flab.ensembleroomreservationproject.support.DatabaseCleanup
 import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
@@ -22,6 +23,7 @@ class UserControllerTest {
 
     @Autowired lateinit var webApplicationContext: WebApplicationContext
     @Autowired lateinit var userRepository: UserRepository
+    @Autowired lateinit var databaseCleanup: DatabaseCleanup
 
     private lateinit var mockMvc: MockMvc
     private val objectMapper = ObjectMapper()
@@ -29,7 +31,7 @@ class UserControllerTest {
     @BeforeEach
     fun setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-        userRepository.deleteAll()
+        databaseCleanup.execute()
     }
 
     @Test

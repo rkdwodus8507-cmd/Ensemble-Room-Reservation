@@ -2,6 +2,7 @@ package org.flab.ensembleroomreservationproject.room.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.flab.ensembleroomreservationproject.room.repository.RoomRepository
+import org.flab.ensembleroomreservationproject.support.DatabaseCleanup
 import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
@@ -27,6 +28,7 @@ class RoomControllerTest {
     @Autowired lateinit var roomRepository: RoomRepository
     @Autowired lateinit var vendorRepository: VendorRepository
     @Autowired lateinit var userRepository: UserRepository
+    @Autowired lateinit var databaseCleanup: DatabaseCleanup
 
     private lateinit var mockMvc: MockMvc
     private val objectMapper = ObjectMapper()
@@ -35,9 +37,7 @@ class RoomControllerTest {
     @BeforeEach
     fun setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build()
-        roomRepository.deleteAll()
-        vendorRepository.deleteAll()
-        userRepository.deleteAll()
+        databaseCleanup.execute()
         val owner = userRepository.save(User(tossUserId = "owner_1", nickname = "사장님"))
         vendor = vendorRepository.save(
             Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111")

@@ -1,6 +1,7 @@
 package org.flab.ensembleroomreservationproject.vendor.service
 
 import org.flab.ensembleroomreservationproject.common.exception.NotFoundException
+import org.flab.ensembleroomreservationproject.support.DatabaseCleanup
 import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
@@ -22,13 +23,13 @@ class VendorServiceTest {
     @Autowired lateinit var vendorService: VendorService
     @Autowired lateinit var vendorRepository: VendorRepository
     @Autowired lateinit var userRepository: UserRepository
+    @Autowired lateinit var databaseCleanup: DatabaseCleanup
 
     lateinit var owner: User
 
     @BeforeEach
     fun setUp() {
-        vendorRepository.deleteAll()
-        userRepository.deleteAll()
+        databaseCleanup.execute()
         owner = userRepository.save(User(tossUserId = "owner_1", nickname = "사장님"))
     }
 
