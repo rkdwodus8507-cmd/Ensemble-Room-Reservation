@@ -11,6 +11,7 @@ import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
 import org.flab.ensembleroomreservationproject.vendor.entity.Vendor
+import org.flab.ensembleroomreservationproject.vendor.entity.VendorStatus
 import org.flab.ensembleroomreservationproject.vendor.repository.VendorRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -43,7 +44,7 @@ class ReservationServiceTest {
         user = userRepository.save(User(tossUserId = "user_1", nickname = "유저"))
         val owner = userRepository.save(User(tossUserId = "owner_1", nickname = "사장님"))
         val vendor = vendorRepository.save(
-            Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111")
+            Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111", status = VendorStatus.APPROVED)
         )
         room = roomRepository.save(Room(vendor = vendor, name = "A룸", capacity = 5, hourlyPrice = 15000))
     }
@@ -52,7 +53,7 @@ class ReservationServiceTest {
     fun `예약 생성`() {
         val request = ReservationCreateRequest(
             userId = user.id!!, roomId = room.id!!,
-            date = LocalDate.of(2026, 3, 16),
+            date = LocalDate.of(2026, 4, 6),
             startTime = LocalTime.of(14, 0),
             durationHours = 2
         )
@@ -60,14 +61,14 @@ class ReservationServiceTest {
         assertEquals("PENDING", result.status)
         assertEquals(30000, result.totalPrice)
         assertEquals(LocalTime.of(16, 0), result.endTime)
-        assertEquals(true, result.reservationNumber.startsWith("R-20260316-"))
+        assertEquals(true, result.reservationNumber.startsWith("R-20260406-"))
     }
 
     @Test
     fun `중복 예약 방지`() {
         val request = ReservationCreateRequest(
             userId = user.id!!, roomId = room.id!!,
-            date = LocalDate.of(2026, 3, 16),
+            date = LocalDate.of(2026, 4, 6),
             startTime = LocalTime.of(14, 0),
             durationHours = 2
         )
@@ -75,7 +76,7 @@ class ReservationServiceTest {
 
         val overlapping = ReservationCreateRequest(
             userId = user.id!!, roomId = room.id!!,
-            date = LocalDate.of(2026, 3, 16),
+            date = LocalDate.of(2026, 4, 6),
             startTime = LocalTime.of(15, 0),
             durationHours = 2
         )
@@ -88,7 +89,7 @@ class ReservationServiceTest {
     fun `내 예약 목록 조회`() {
         val request = ReservationCreateRequest(
             userId = user.id!!, roomId = room.id!!,
-            date = LocalDate.of(2026, 3, 16),
+            date = LocalDate.of(2026, 4, 6),
             startTime = LocalTime.of(14, 0),
             durationHours = 2
         )
@@ -101,7 +102,7 @@ class ReservationServiceTest {
     fun `예약 취소`() {
         val request = ReservationCreateRequest(
             userId = user.id!!, roomId = room.id!!,
-            date = LocalDate.of(2026, 3, 16),
+            date = LocalDate.of(2026, 4, 6),
             startTime = LocalTime.of(14, 0),
             durationHours = 2
         )

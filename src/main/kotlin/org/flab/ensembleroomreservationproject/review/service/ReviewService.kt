@@ -3,6 +3,7 @@ package org.flab.ensembleroomreservationproject.review.service
 import org.flab.ensembleroomreservationproject.common.exception.BadRequestException
 import org.flab.ensembleroomreservationproject.common.exception.ConflictException
 import org.flab.ensembleroomreservationproject.common.exception.NotFoundException
+import org.flab.ensembleroomreservationproject.reservation.entity.ReservationStatus
 import org.flab.ensembleroomreservationproject.reservation.repository.ReservationRepository
 import org.flab.ensembleroomreservationproject.review.dto.ReviewCreateRequest
 import org.flab.ensembleroomreservationproject.review.dto.ReviewResponse
@@ -37,8 +38,18 @@ class ReviewService(
             if (reviewRepository.existsByUserIdAndReservationId(request.userId, reservationId)) {
                 throw ConflictException("해당 예약에 대한 리뷰가 이미 존재합니다")
             }
-            reservationRepository.findById(reservationId)
+            val res = reservationRepository.findById(reservationId)
                 .orElseThrow { NotFoundException("예약을 찾을 수 없습니다: $reservationId") }
+            if (res.user.id != user.id) {
+                throw BadRequestException("본인의 예약에만 리뷰를 작성할 수 있습니다")
+            }
+            if (res.vendor.id != vendor.id) {
+                throw BadRequestException("해당 업체의 예약이 아닙니다")
+            }
+            if (res.status != ReservationStatus.COMPLETED) {
+                throw BadRequestException("완료된 예약에만 리뷰를 작성할 수 있습니다")
+            }
+            res
         }
 
         val review = reviewRepository.save(
@@ -54,11 +65,11 @@ class ReviewService(
     }
 
     fun getVendorReviews(vendorId: UUID): List<ReviewResponse> =
-        reviewRepository.findByVendorIdOrderByCreatedAtDesc(vendorId)
+        reviewRepository.findByVendorIdWithDetails(vendorId)
             .map { ReviewResponse.from(it) }
 
     fun getUserReviews(userId: UUID): List<ReviewResponse> =
-        reviewRepository.findByUserId(userId)
+        reviewRepository.findByUserIdWithDetails(userId)
             .map { ReviewResponse.from(it) }
 
     @Transactional

@@ -5,7 +5,6 @@ import org.flab.ensembleroomreservationproject.common.dto.ApiResponse
 import org.flab.ensembleroomreservationproject.review.dto.ReviewCreateRequest
 import org.flab.ensembleroomreservationproject.review.dto.ReviewResponse
 import org.flab.ensembleroomreservationproject.review.service.ReviewService
-import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -27,8 +26,8 @@ class ReviewController(
         ApiResponse.ok(reviewService.getUserReviews(userId))
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteReview(@PathVariable id: UUID, @RequestParam userId: UUID) {
+    fun deleteReview(@PathVariable id: UUID, @RequestParam userId: UUID): ApiResponse<Unit> {
         reviewService.deleteReview(id, userId)
+        return ApiResponse.ok(Unit)
     }
 }

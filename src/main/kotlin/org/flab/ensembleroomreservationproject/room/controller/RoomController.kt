@@ -25,7 +25,7 @@ class RoomController(
         ApiResponse.ok(roomService.getRoomsByVendor(vendorId))
 
     @PatchMapping("/api/v1/rooms/{id}")
-    fun updateRoom(@PathVariable id: UUID, @RequestBody request: RoomUpdateRequest): ApiResponse<RoomResponse> =
+    fun updateRoom(@PathVariable id: UUID, @Valid @RequestBody request: RoomUpdateRequest): ApiResponse<RoomResponse> =
         ApiResponse.ok(roomService.updateRoom(id, request))
 
     @DeleteMapping("/api/v1/rooms/{id}")

@@ -44,7 +44,7 @@ class FavoriteService(
     }
 
     fun getUserFavorites(userId: UUID): List<FavoriteResponse> =
-        favoriteRepository.findByUserId(userId)
+        favoriteRepository.findByUserIdWithVendor(userId)
             .map { FavoriteResponse.from(it) }
 
     fun isFavorite(userId: UUID, vendorId: UUID): Boolean =

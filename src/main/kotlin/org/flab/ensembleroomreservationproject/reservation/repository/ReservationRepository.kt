@@ -33,6 +33,12 @@ interface ReservationRepository : JpaRepository<Reservation, UUID> {
 
     fun findByUserId(userId: UUID, pageable: Pageable): Page<Reservation>
 
+    @Query(
+        value = "SELECT r FROM Reservation r JOIN FETCH r.user JOIN FETCH r.room JOIN FETCH r.vendor WHERE r.user.id = :userId ORDER BY r.createdAt DESC",
+        countQuery = "SELECT count(r) FROM Reservation r WHERE r.user.id = :userId"
+    )
+    fun findByUserIdWithDetails(userId: UUID, pageable: Pageable): Page<Reservation>
+
     @Query("""
         SELECT r FROM Reservation r
         WHERE r.room.id = :roomId

@@ -62,7 +62,7 @@ class RoomService(
         room.isActive = false
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun getAvailability(roomId: UUID, date: LocalDate): AvailabilityResponse {
         val room = roomRepository.findById(roomId)
             .orElseThrow { NotFoundException("룸을 찾을 수 없습니다: $roomId") }

@@ -1,5 +1,6 @@
 package org.flab.ensembleroomreservationproject.favorite.controller
 
+import jakarta.validation.Valid
 import org.flab.ensembleroomreservationproject.common.dto.ApiResponse
 import org.flab.ensembleroomreservationproject.favorite.dto.FavoriteRequest
 import org.flab.ensembleroomreservationproject.favorite.dto.FavoriteResponse
@@ -13,11 +14,11 @@ class FavoriteController(
     private val favoriteService: FavoriteService
 ) {
     @PostMapping
-    fun addFavorite(@RequestBody request: FavoriteRequest): ApiResponse<FavoriteResponse> =
+    fun addFavorite(@Valid @RequestBody request: FavoriteRequest): ApiResponse<FavoriteResponse> =
         ApiResponse.ok(favoriteService.addFavorite(request.userId, request.vendorId))
 
     @DeleteMapping
-    fun removeFavorite(@RequestBody request: FavoriteRequest): ApiResponse<Unit> {
+    fun removeFavorite(@Valid @RequestBody request: FavoriteRequest): ApiResponse<Unit> {
         favoriteService.removeFavorite(request.userId, request.vendorId)
         return ApiResponse.ok(Unit)
     }

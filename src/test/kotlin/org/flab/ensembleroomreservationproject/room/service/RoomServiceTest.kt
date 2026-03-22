@@ -10,6 +10,7 @@ import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
 import org.flab.ensembleroomreservationproject.vendor.entity.Vendor
+import org.flab.ensembleroomreservationproject.vendor.entity.VendorStatus
 import org.flab.ensembleroomreservationproject.vendor.repository.VendorRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -38,7 +39,7 @@ class RoomServiceTest {
         databaseCleanup.execute()
         val owner = userRepository.save(User(tossUserId = "owner_1", nickname = "사장님"))
         vendor = vendorRepository.save(
-            Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111")
+            Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111", status = VendorStatus.APPROVED)
         )
     }
 
@@ -73,8 +74,8 @@ class RoomServiceTest {
     @Test
     fun `예약 가능 시간 조회 - 월요일 빈 슬롯`() {
         val room = roomService.createRoom(vendor.id!!, RoomCreateRequest(name = "A룸", capacity = 5, hourlyPrice = 15000))
-        // 2026-03-16 is Monday. Default operating hours: mon 09:00-23:00 = 14 slots
-        val availability = roomService.getAvailability(room.id, LocalDate.of(2026, 3, 16))
+        // 2026-04-06 is Monday. Default operating hours: mon 09:00-23:00 = 14 slots
+        val availability = roomService.getAvailability(room.id, LocalDate.of(2026, 4, 6))
         assertEquals(true, availability.slots.isNotEmpty())
         assertEquals(14, availability.slots.size)
         assertEquals(true, availability.slots.all { it.available })
@@ -88,10 +89,10 @@ class RoomServiceTest {
         // 14:00~16:00 예약 생성
         reservationService.createReservation(ReservationCreateRequest(
             userId = testUser.id!!, roomId = room.id,
-            date = LocalDate.of(2026, 3, 16), startTime = LocalTime.of(14, 0), durationHours = 2
+            date = LocalDate.of(2026, 4, 6), startTime = LocalTime.of(14, 0), durationHours = 2
         ))
 
-        val availability = roomService.getAvailability(room.id, LocalDate.of(2026, 3, 16))
+        val availability = roomService.getAvailability(room.id, LocalDate.of(2026, 4, 6))
         val slot14 = availability.slots.find { it.start == "14:00" }!!
         val slot15 = availability.slots.find { it.start == "15:00" }!!
         val slot13 = availability.slots.find { it.start == "13:00" }!!

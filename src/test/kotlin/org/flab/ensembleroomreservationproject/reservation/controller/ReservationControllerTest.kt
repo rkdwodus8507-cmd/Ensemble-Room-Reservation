@@ -9,6 +9,7 @@ import org.flab.ensembleroomreservationproject.support.TestContainersConfig
 import org.flab.ensembleroomreservationproject.user.entity.User
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
 import org.flab.ensembleroomreservationproject.vendor.entity.Vendor
+import org.flab.ensembleroomreservationproject.vendor.entity.VendorStatus
 import org.flab.ensembleroomreservationproject.vendor.repository.VendorRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -45,7 +46,7 @@ class ReservationControllerTest {
         user = userRepository.save(User(tossUserId = "user_1", nickname = "유저"))
         val owner = userRepository.save(User(tossUserId = "owner_1", nickname = "사장님"))
         val vendor = vendorRepository.save(
-            Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111")
+            Vendor(owner = owner, name = "스튜디오", phone = "02-0000", address = "서울", businessNumber = "111-11-11111", status = VendorStatus.APPROVED)
         )
         room = roomRepository.save(Room(vendor = vendor, name = "A룸", capacity = 5, hourlyPrice = 15000))
     }
@@ -57,7 +58,7 @@ class ReservationControllerTest {
             content = objectMapper.writeValueAsString(mapOf(
                 "user_id" to user.id,
                 "room_id" to room.id,
-                "date" to "2026-03-16",
+                "date" to "2026-04-06",
                 "start_time" to "14:00",
                 "duration_hours" to 2
             ))
@@ -75,7 +76,7 @@ class ReservationControllerTest {
             content = objectMapper.writeValueAsString(mapOf(
                 "user_id" to user.id,
                 "room_id" to room.id,
-                "date" to "2026-03-16",
+                "date" to "2026-04-06",
                 "start_time" to "14:00",
                 "duration_hours" to 2
             ))
@@ -95,7 +96,7 @@ class ReservationControllerTest {
             content = objectMapper.writeValueAsString(mapOf(
                 "user_id" to user.id,
                 "room_id" to room.id,
-                "date" to "2026-03-16",
+                "date" to "2026-04-06",
                 "start_time" to "14:00",
                 "duration_hours" to 2
             ))

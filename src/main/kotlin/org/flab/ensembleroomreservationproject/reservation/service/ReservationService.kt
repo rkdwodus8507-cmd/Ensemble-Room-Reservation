@@ -11,11 +11,13 @@ import org.flab.ensembleroomreservationproject.reservation.entity.ReservationSta
 import org.flab.ensembleroomreservationproject.reservation.repository.ReservationRepository
 import org.flab.ensembleroomreservationproject.room.repository.RoomRepository
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
+import org.flab.ensembleroomreservationproject.vendor.entity.VendorStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 @Service
@@ -32,6 +34,14 @@ class ReservationService(
             .orElseThrow { NotFoundException("유저를 찾을 수 없습니다: ${request.userId}") }
         val room = roomRepository.findById(request.roomId)
             .orElseThrow { NotFoundException("룸을 찾을 수 없습니다: ${request.roomId}") }
+
+        if (request.date.isBefore(LocalDate.now())) {
+            throw BadRequestException("과거 날짜에는 예약할 수 없습니다")
+        }
+
+        if (room.vendor.status != VendorStatus.APPROVED) {
+            throw BadRequestException("승인되지 않은 업체에는 예약할 수 없습니다")
+        }
 
         if (request.durationHours < room.minHours || request.durationHours > room.maxHours) {
             throw BadRequestException("예약 시간은 ${room.minHours}~${room.maxHours}시간이어야 합니다")
@@ -74,7 +84,7 @@ class ReservationService(
             .orElseThrow { NotFoundException("예약을 찾을 수 없습니다: $id") }
 
     fun getUserReservations(userId: UUID, pageable: Pageable): Page<ReservationResponse> =
-        reservationRepository.findByUserId(userId, pageable)
+        reservationRepository.findByUserIdWithDetails(userId, pageable)
             .map { ReservationResponse.from(it) }
 
     @Transactional
@@ -82,8 +92,8 @@ class ReservationService(
         val reservation = reservationRepository.findById(id)
             .orElseThrow { NotFoundException("예약을 찾을 수 없습니다: $id") }
 
-        if (reservation.status == ReservationStatus.CANCELLED) {
-            throw BadRequestException("이미 취소된 예약입니다")
+        if (reservation.status != ReservationStatus.PENDING && reservation.status != ReservationStatus.CONFIRMED) {
+            throw BadRequestException("취소할 수 없는 예약 상태입니다")
         }
 
         reservation.status = ReservationStatus.CANCELLED
@@ -98,6 +108,15 @@ class ReservationService(
     fun updateStatus(id: UUID, status: ReservationStatus): ReservationResponse {
         val reservation = reservationRepository.findById(id)
             .orElseThrow { NotFoundException("예약을 찾을 수 없습니다: $id") }
+
+        val allowedTransitions = mapOf(
+            ReservationStatus.PENDING to setOf(ReservationStatus.CONFIRMED, ReservationStatus.CANCELLED),
+            ReservationStatus.CONFIRMED to setOf(ReservationStatus.COMPLETED, ReservationStatus.CANCELLED, ReservationStatus.NO_SHOW)
+        )
+        if (status !in (allowedTransitions[reservation.status] ?: emptySet())) {
+            throw BadRequestException("${reservation.status}에서 ${status}(으)로 변경할 수 없습니다")
+        }
+
         reservation.status = status
         return ReservationResponse.from(reservation)
     }

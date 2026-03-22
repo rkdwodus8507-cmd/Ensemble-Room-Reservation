@@ -36,7 +36,7 @@ class ReservationController(
     @PostMapping("/{id}/cancel")
     fun cancelReservation(
         @PathVariable id: UUID,
-        @RequestBody request: CancelRequest
+        @Valid @RequestBody request: CancelRequest
     ): ApiResponse<ReservationResponse> =
         ApiResponse.ok(reservationService.cancelReservation(id, request))
 

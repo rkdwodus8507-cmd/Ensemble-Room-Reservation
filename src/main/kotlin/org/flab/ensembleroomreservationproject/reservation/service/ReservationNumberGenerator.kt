@@ -11,7 +11,7 @@ class ReservationNumberGenerator {
 
     fun generate(date: LocalDate): String {
         val datePart = date.format(dateFormatter)
-        val randomPart = (1..4).map { chars.random() }.joinToString("")
+        val randomPart = (1..6).map { chars.random() }.joinToString("")
         return "R-$datePart-$randomPart"
     }
 }
