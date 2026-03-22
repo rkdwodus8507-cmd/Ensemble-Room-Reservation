@@ -68,6 +68,11 @@ class ReservationService(
         return ReservationResponse.from(reservation)
     }
 
+    fun getReservation(id: UUID): ReservationResponse =
+        reservationRepository.findById(id)
+            .map { ReservationResponse.from(it) }
+            .orElseThrow { NotFoundException("예약을 찾을 수 없습니다: $id") }
+
     fun getUserReservations(userId: UUID, pageable: Pageable): Page<ReservationResponse> =
         reservationRepository.findByUserId(userId, pageable)
             .map { ReservationResponse.from(it) }

@@ -18,6 +18,10 @@ import java.util.*
 class ReservationController(
     private val reservationService: ReservationService
 ) {
+    @GetMapping("/{id}")
+    fun getReservation(@PathVariable id: UUID): ApiResponse<ReservationResponse> =
+        ApiResponse.ok(reservationService.getReservation(id))
+
     @PostMapping
     fun createReservation(@Valid @RequestBody request: ReservationCreateRequest): ApiResponse<ReservationResponse> =
         ApiResponse.ok(reservationService.createReservation(request))
