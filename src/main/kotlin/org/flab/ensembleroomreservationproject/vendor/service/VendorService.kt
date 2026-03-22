@@ -40,6 +40,9 @@ class VendorService(
     fun getApprovedVendors(pageable: Pageable): Page<VendorResponse> =
         vendorRepository.findByStatus(VendorStatus.APPROVED, pageable).map { VendorResponse.from(it) }
 
+    fun getPendingVendors(pageable: Pageable): Page<VendorResponse> =
+        vendorRepository.findByStatus(VendorStatus.PENDING, pageable).map { VendorResponse.from(it) }
+
     fun getVendor(id: UUID): VendorResponse {
         val vendor = vendorRepository.findById(id)
             .orElseThrow { NotFoundException("업체를 찾을 수 없습니다: $id") }
