@@ -14,6 +14,19 @@
 ./gradlew bootRun     # 실행
 ```
 
+## 로컬 실행
+```bash
+# 터미널 1: DB
+docker compose up -d
+
+# 터미널 2: 백엔드
+cd "Ensemble Room Reservation Project" && ./gradlew bootRun
+
+# 터미널 3: 프론트
+cd Ensemble-Room-Reservation-Front && npm run dev
+```
+프론트: localhost:5173, 백엔드 API 호출 구조
+
 ## 코딩 컨벤션
 - 한국어 커밋 메시지, 에러 메시지 한국어
 - 클래스/함수명은 영어, 주석은 한국어 허용
