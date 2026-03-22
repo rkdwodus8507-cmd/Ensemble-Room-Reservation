@@ -13,6 +13,7 @@ class DatabaseCleanup(
         entityManager.flush()
         // FK 의존성 역순으로 삭제
         val tables = listOf(
+            "reservations",
             "time_slot_overrides",
             "rooms",
             "vendors",
