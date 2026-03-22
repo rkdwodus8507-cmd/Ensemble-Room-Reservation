@@ -3,6 +3,8 @@ package org.flab.ensembleroomreservationproject.room.service
 import org.flab.ensembleroomreservationproject.common.exception.NotFoundException
 import org.flab.ensembleroomreservationproject.room.dto.*
 import org.flab.ensembleroomreservationproject.room.entity.Room
+import org.flab.ensembleroomreservationproject.reservation.entity.ReservationStatus
+import org.flab.ensembleroomreservationproject.reservation.repository.ReservationRepository
 import org.flab.ensembleroomreservationproject.room.repository.RoomRepository
 import org.flab.ensembleroomreservationproject.room.repository.TimeSlotOverrideRepository
 import org.flab.ensembleroomreservationproject.vendor.repository.VendorRepository
@@ -18,7 +20,8 @@ import java.util.*
 class RoomService(
     private val roomRepository: RoomRepository,
     private val vendorRepository: VendorRepository,
-    private val timeSlotOverrideRepository: TimeSlotOverrideRepository
+    private val timeSlotOverrideRepository: TimeSlotOverrideRepository,
+    private val reservationRepository: ReservationRepository
 ) {
     @Transactional
     fun createRoom(vendorId: UUID, request: RoomCreateRequest): RoomResponse {
@@ -79,6 +82,14 @@ class RoomService(
         val overrides = timeSlotOverrideRepository.findByRoomIdAndDate(roomId, date)
         val overrideMap = overrides.associateBy { it.startTime }
 
+        val activeStatuses = listOf(ReservationStatus.PENDING, ReservationStatus.CONFIRMED)
+        val existingReservations = reservationRepository.findByRoomIdAndDate(roomId, date, activeStatuses)
+        val reservedSlots = existingReservations.flatMap { r ->
+            generateSequence(r.startTime) { it.plusHours(1) }
+                .takeWhile { it.isBefore(r.endTime) }
+                .toList()
+        }.toSet()
+
         val openTime = LocalTime.parse(hours.open)
         val isMidnightClose = hours.close == "24:00"
         val closeHour = if (isMidnightClose) 24 else LocalTime.parse(hours.close).hour
@@ -93,10 +104,11 @@ class RoomService(
             val blocked = override?.isBlocked ?: false
             val price = override?.overridePrice ?: room.hourlyPrice
 
+            val isReserved = reservedSlots.contains(current)
             slots.add(TimeSlot(
                 start = current.toString(),
                 end = nextDisplay,
-                available = !blocked,
+                available = !blocked && !isReserved,
                 price = price
             ))
             currentHour = nextHour
