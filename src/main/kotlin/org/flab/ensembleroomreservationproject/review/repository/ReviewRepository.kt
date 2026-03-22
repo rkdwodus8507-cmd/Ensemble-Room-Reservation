@@ -20,4 +20,7 @@ interface ReviewRepository : JpaRepository<Review, UUID> {
     fun findByReservationId(reservationId: UUID): Optional<Review>
 
     fun existsByUserIdAndReservationId(userId: UUID, reservationId: UUID): Boolean
+
+    @Query("SELECT r.reservation.id FROM Review r WHERE r.reservation.id IN :reservationIds")
+    fun findReservationIdsWithReviews(reservationIds: List<UUID>): List<UUID>
 }

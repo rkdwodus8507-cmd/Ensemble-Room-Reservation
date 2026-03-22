@@ -19,10 +19,11 @@ data class ReservationResponse(
     val durationHours: Int,
     val totalPrice: Int,
     val status: String,
-    val userMemo: String?
+    val userMemo: String?,
+    val hasReview: Boolean = false
 ) {
     companion object {
-        fun from(reservation: Reservation) = ReservationResponse(
+        fun from(reservation: Reservation, hasReview: Boolean = false) = ReservationResponse(
             id = reservation.id!!,
             reservationNumber = reservation.reservationNumber,
             userId = reservation.user.id!!,
@@ -36,7 +37,8 @@ data class ReservationResponse(
             durationHours = reservation.durationHours,
             totalPrice = reservation.totalPrice,
             status = reservation.status.name,
-            userMemo = reservation.userMemo
+            userMemo = reservation.userMemo,
+            hasReview = hasReview
         )
     }
 }

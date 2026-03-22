@@ -9,6 +9,7 @@ import org.flab.ensembleroomreservationproject.reservation.dto.ReservationRespon
 import org.flab.ensembleroomreservationproject.reservation.entity.Reservation
 import org.flab.ensembleroomreservationproject.reservation.entity.ReservationStatus
 import org.flab.ensembleroomreservationproject.reservation.repository.ReservationRepository
+import org.flab.ensembleroomreservationproject.review.repository.ReviewRepository
 import org.flab.ensembleroomreservationproject.room.repository.RoomRepository
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
 import org.flab.ensembleroomreservationproject.vendor.entity.VendorStatus
@@ -24,6 +25,7 @@ import java.util.*
 @Transactional(readOnly = true)
 class ReservationService(
     private val reservationRepository: ReservationRepository,
+    private val reviewRepository: ReviewRepository,
     private val roomRepository: RoomRepository,
     private val userRepository: UserRepository,
     private val reservationNumberGenerator: ReservationNumberGenerator
@@ -78,14 +80,21 @@ class ReservationService(
         return ReservationResponse.from(reservation)
     }
 
-    fun getReservation(id: UUID): ReservationResponse =
-        reservationRepository.findById(id)
-            .map { ReservationResponse.from(it) }
+    fun getReservation(id: UUID): ReservationResponse {
+        val reservation = reservationRepository.findById(id)
             .orElseThrow { NotFoundException("예약을 찾을 수 없습니다: $id") }
+        val hasReview = reviewRepository.findByReservationId(reservation.id!!).isPresent
+        return ReservationResponse.from(reservation, hasReview)
+    }
 
-    fun getUserReservations(userId: UUID, pageable: Pageable): Page<ReservationResponse> =
-        reservationRepository.findByUserIdWithDetails(userId, pageable)
-            .map { ReservationResponse.from(it) }
+    fun getUserReservations(userId: UUID, pageable: Pageable): Page<ReservationResponse> {
+        val reservations = reservationRepository.findByUserIdWithDetails(userId, pageable)
+        val reservationIds = reservations.content.mapNotNull { it.id }
+        val reviewedIds = if (reservationIds.isNotEmpty()) {
+            reviewRepository.findReservationIdsWithReviews(reservationIds).toSet()
+        } else emptySet()
+        return reservations.map { ReservationResponse.from(it, it.id in reviewedIds) }
+    }
 
     @Transactional
     fun cancelReservation(id: UUID, request: CancelRequest): ReservationResponse {
