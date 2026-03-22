@@ -23,3 +23,6 @@ INSERT INTO reservations (id, reservation_number, user_id, room_id, vendor_id, d
 
 -- 예약 (테스트 유저, COMPLETED)
 INSERT INTO reservations (id, reservation_number, user_id, room_id, vendor_id, date, start_time, end_time, duration_hours, total_price, status, created_at, updated_at) VALUES ('44444444-4444-4444-4444-444444444444', 'R-20260310-TEST2', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '11111111-1111-1111-1111-111111111111', 'dddddddd-dddd-dddd-dddd-dddddddddddd', '2026-03-10', '18:00:00', '20:00:00', 2, 36000, 'COMPLETED', NOW(), NOW());
+
+-- 알림 설정 (테스트 유저)
+INSERT INTO notification_settings (id, user_id, reservation_alert, review_alert, marketing_alert) VALUES ('55555555-5555-5555-5555-555555555555', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', true, true, false);
