@@ -18,7 +18,9 @@ data class VendorResponse(
     val status: String,
     val operatingHours: Map<String, OperatingHour>,
     val amenities: List<String>,
-    val thumbnailUrl: String?
+    val thumbnailUrl: String?,
+    val rating: Double = 0.0,
+    val reviewCount: Long = 0
 ) {
     companion object {
         fun from(vendor: Vendor) = VendorResponse(
@@ -36,6 +38,25 @@ data class VendorResponse(
             operatingHours = vendor.operatingHours,
             amenities = vendor.amenities,
             thumbnailUrl = vendor.thumbnailUrl
+        )
+
+        fun from(vendor: Vendor, rating: Double, reviewCount: Long) = VendorResponse(
+            id = vendor.id!!,
+            ownerId = vendor.owner.id!!,
+            name = vendor.name,
+            description = vendor.description,
+            phone = vendor.phone,
+            address = vendor.address,
+            addressDetail = vendor.addressDetail,
+            latitude = vendor.latitude,
+            longitude = vendor.longitude,
+            businessNumber = vendor.businessNumber,
+            status = vendor.status.name,
+            operatingHours = vendor.operatingHours,
+            amenities = vendor.amenities,
+            thumbnailUrl = vendor.thumbnailUrl,
+            rating = rating,
+            reviewCount = reviewCount
         )
     }
 }

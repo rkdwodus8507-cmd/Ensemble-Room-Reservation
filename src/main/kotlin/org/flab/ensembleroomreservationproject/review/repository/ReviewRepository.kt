@@ -23,4 +23,10 @@ interface ReviewRepository : JpaRepository<Review, UUID> {
 
     @Query("SELECT r.reservation.id FROM Review r WHERE r.reservation.id IN :reservationIds")
     fun findReservationIdsWithReviews(reservationIds: List<UUID>): List<UUID>
+
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.vendor.id = :vendorId")
+    fun findAverageRatingByVendorId(vendorId: UUID): Double?
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.vendor.id = :vendorId")
+    fun countByVendorId(vendorId: UUID): Long
 }

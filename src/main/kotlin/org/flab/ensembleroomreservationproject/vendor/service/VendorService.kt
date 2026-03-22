@@ -1,6 +1,7 @@
 package org.flab.ensembleroomreservationproject.vendor.service
 
 import org.flab.ensembleroomreservationproject.common.exception.NotFoundException
+import org.flab.ensembleroomreservationproject.review.repository.ReviewRepository
 import org.flab.ensembleroomreservationproject.user.repository.UserRepository
 import org.flab.ensembleroomreservationproject.vendor.dto.VendorCreateRequest
 import org.flab.ensembleroomreservationproject.vendor.dto.VendorResponse
@@ -18,7 +19,8 @@ import java.util.*
 @Transactional(readOnly = true)
 class VendorService(
     private val vendorRepository: VendorRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val reviewRepository: ReviewRepository
 ) {
     @Transactional
     fun createVendor(request: VendorCreateRequest): VendorResponse {
@@ -38,7 +40,7 @@ class VendorService(
     }
 
     fun getApprovedVendors(pageable: Pageable): Page<VendorResponse> =
-        vendorRepository.findByStatus(VendorStatus.APPROVED, pageable).map { VendorResponse.from(it) }
+        vendorRepository.findByStatus(VendorStatus.APPROVED, pageable).map { toResponseWithReviewStats(it) }
 
     fun getPendingVendors(pageable: Pageable): Page<VendorResponse> =
         vendorRepository.findByStatus(VendorStatus.PENDING, pageable).map { VendorResponse.from(it) }
@@ -46,7 +48,7 @@ class VendorService(
     fun getVendor(id: UUID): VendorResponse {
         val vendor = vendorRepository.findById(id)
             .orElseThrow { NotFoundException("업체를 찾을 수 없습니다: $id") }
-        return VendorResponse.from(vendor)
+        return toResponseWithReviewStats(vendor)
     }
 
     @Transactional
@@ -80,5 +82,11 @@ class VendorService(
             .orElseThrow { NotFoundException("업체를 찾을 수 없습니다: $id") }
         vendor.status = VendorStatus.REJECTED
         return VendorResponse.from(vendor)
+    }
+
+    private fun toResponseWithReviewStats(vendor: Vendor): VendorResponse {
+        val rating = reviewRepository.findAverageRatingByVendorId(vendor.id!!) ?: 0.0
+        val reviewCount = reviewRepository.countByVendorId(vendor.id!!)
+        return VendorResponse.from(vendor, Math.round(rating * 10) / 10.0, reviewCount)
     }
 }
