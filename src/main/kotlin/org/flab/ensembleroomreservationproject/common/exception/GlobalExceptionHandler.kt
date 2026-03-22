@@ -42,6 +42,8 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleGeneral(e: Exception): ApiResponse<Nothing> =
-        ApiResponse.error("서버 내부 오류가 발생했습니다")
+    fun handleGeneral(e: Exception): ApiResponse<Nothing> {
+        e.printStackTrace()
+        return ApiResponse.error("서버 내부 오류가 발생했습니다")
+    }
 }

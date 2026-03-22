@@ -9,8 +9,8 @@ data class FavoriteResponse(
     val vendorId: UUID,
     val vendorName: String,
     val vendorAddress: String,
-    val vendorRating: Double?,
-    val vendorReviewCount: Int?,
+    val vendorRating: Double,
+    val vendorReviewCount: Int,
     val vendorImageUrl: String?,
     val createdAt: Instant?
 ) {
@@ -20,8 +20,8 @@ data class FavoriteResponse(
             vendorId = favorite.vendor.id!!,
             vendorName = favorite.vendor.name,
             vendorAddress = favorite.vendor.address,
-            vendorRating = null,
-            vendorReviewCount = null,
+            vendorRating = 0.0,
+            vendorReviewCount = 0,
             vendorImageUrl = favorite.vendor.thumbnailUrl,
             createdAt = favorite.createdAt
         )

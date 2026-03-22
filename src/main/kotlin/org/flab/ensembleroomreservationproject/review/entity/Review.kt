@@ -46,7 +46,7 @@ class Review(
 
     @CreatedDate
     @Column(updatable = false)
-    val createdAt: Instant? = null,
+    var createdAt: Instant? = null,
 
     @LastModifiedDate
     var updatedAt: Instant? = null
